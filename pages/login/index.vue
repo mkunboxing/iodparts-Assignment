@@ -1,9 +1,8 @@
 <template>
-    <div class="min-h-screen flex items-center justify-center bg-gray-100">
-      <div class="max-w-md w-full space-y-8 p-8 bg-white rounded-lg shadow">
-        <h1 class="text-3xl font-bold text-center">Sign In</h1>
+    <div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-100 via-blue-50 to-purple-100">
+
         <LoginForm />
-      </div>
+
     </div>
 </template>
   

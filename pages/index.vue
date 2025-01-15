@@ -1,5 +1,5 @@
 <template>
-  <div class="container mx-auto px-4 py-8 bg-yellow-50">
+  <div class="container mx-auto px-4 py-8">
     <h1 class="text-3xl font-bold mb-8 text-gray-800">Our Products</h1>
     
     <!-- Loading State with Shimmer -->    
@@ -39,7 +39,7 @@
         <div class="flex gap-2">
           <button
             @click="setSorting('title')"
-            class="px-4 py-2 rounded-lg border transition-all duration-200 flex items-center gap-2"
+            class="px-4 py-2 rounded-lg border transition-all duration-200 flex items-center gap-2 bg-white"
             :class="sortField === 'title' ? 'bg-blue-50 border-blue-500 text-blue-700' : 'border-gray-300 hover:bg-gray-50'"
           >
             Title
@@ -50,7 +50,7 @@
           
           <button
             @click="setSorting('price')"
-            class="px-4 py-2 rounded-lg border transition-all duration-200 flex items-center gap-2"
+            class="px-4 py-2 rounded-lg border transition-all duration-200 flex items-center gap-2 bg-white"
             :class="sortField === 'price' ? 'bg-blue-50 border-blue-500 text-blue-700' : 'border-gray-300 hover:bg-gray-50'"
           >
             Price
@@ -59,11 +59,11 @@
             </span>
           </button>
 
-          <!-- Clear Sort Button - Only show when sort is active -->
+          <!-- Clear Sort Button -->
           <button
             v-if="isSortActive"
             @click="clearSort"
-            class="px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-50 transition-all duration-200 flex items-center gap-2 text-gray-700"
+            class="px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-50 transition-all duration-200 flex items-center gap-2 text-gray-700 bg-white"
           >
             <span class="material-icons text-sm">clear</span>
             Clear Sort
@@ -72,15 +72,16 @@
       </div>
 
       <!-- Products Display -->
-      <div v-if="products && products.length > 0" class="space-y-8">
-        <div class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+      <div v-if="products.length > 0" class="space-y-8">
+        <div class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-6">
+          <!-- Product Cards -->
           <div 
             v-for="product in products" 
             :key="product.id"
             class="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-all duration-300 border border-gray-100"
           >
             <!-- Product Card Content -->
-            <div class="aspect-square relative overflow-hidden bg-gray-100">
+            <div class="aspect-square relative overflow-hidden bg-gray-100 max-h-[180px] sm:max-h-none">
               <img 
                 :src="product.thumbnail" 
                 :alt="product.title"
@@ -89,29 +90,29 @@
               />
             </div>
 
-            <div class="p-5">
+            <div class="p-3 sm:p-5">
               <div class="mb-2">
-                <span class="px-3 py-1 text-xs font-medium rounded-full bg-blue-50 text-blue-600">
+                <span class="px-2 sm:px-3 py-1 text-xs font-medium rounded-full bg-blue-50 text-blue-600">
                   {{ formatCategory(product.category) }}
                 </span>
               </div>
 
-              <h2 class="text-lg font-semibold text-gray-800 mb-2 min-h-[1.5rem]">
+              <h2 class="text-sm sm:text-lg font-semibold text-gray-800 mb-2 line-clamp-2">
                 {{ product.title }}
               </h2>
 
-              <div class="flex items-center justify-between mb-3">
+              <div class="flex items-center justify-between mb-2 sm:mb-3">
                 <div class="flex items-center">
-                  <span class="material-icons text-yellow-400 text-sm">star</span>
-                  <span class="text-sm text-gray-600 ml-1">{{ product.rating.toFixed(1) }}</span>
+                  <span class="material-icons text-yellow-400 text-xs sm:text-sm">star</span>
+                  <span class="text-xs sm:text-sm text-gray-600 ml-1">{{ product.rating.toFixed(1) }}</span>
                 </div>
-                <span class="text-sm" :class="product.stock > 10 ? 'text-green-600' : 'text-red-600'">
+                <span class="text-xs sm:text-sm" :class="product.stock > 10 ? 'text-green-600' : 'text-red-600'">
                   Stock: {{ product.stock }}
                 </span>
               </div>
 
-              <div class="mt-4">
-                <p class="text-xl font-bold text-blue-600">
+              <div class="mt-2 sm:mt-4">
+                <p class="text-base sm:text-xl font-bold text-blue-600">
                   ${{ formatPrice(product.price) }}
                 </p>
               </div>
@@ -120,19 +121,19 @@
         </div>
 
         <!-- Pagination -->
-        <div class="flex items-center justify-center gap-4">
+        <div class="flex items-center justify-center gap-2 sm:gap-4">
           <button 
             @click="prevPage" 
             :disabled="!canGoPrev"
-            class="px-6 py-2.5 rounded-lg transition-all duration-200 flex items-center gap-2"
+            class="px-3 sm:px-6 py-2 sm:py-2.5 text-sm sm:text-base rounded-lg transition-all duration-200 flex items-center gap-1 sm:gap-2"
             :class="canGoPrev ? 'bg-blue-600 text-white hover:bg-blue-700' : 'bg-gray-100 text-gray-400 cursor-not-allowed'"
           >
             <span class="material-icons text-sm">arrow_back</span>
             Previous
           </button>
           
-          <div class="px-4 py-2 bg-gray-50 rounded-lg">
-            <span class="text-sm font-medium text-gray-700">
+          <div class="px-3 sm:px-4 py-2 bg-gray-50 rounded-lg">
+            <span class="text-xs sm:text-sm font-medium text-gray-700">
               Page {{ currentPage }} of {{ totalPages }}
             </span>
           </div>
@@ -140,7 +141,7 @@
           <button 
             @click="nextPage" 
             :disabled="!canGoNext"
-            class="px-6 py-2.5 rounded-lg transition-all duration-200 flex items-center gap-2"
+            class="px-3 sm:px-6 py-2 sm:py-2.5 text-sm sm:text-base rounded-lg transition-all duration-200 flex items-center gap-1 sm:gap-2"
             :class="canGoNext ? 'bg-blue-600 text-white hover:bg-blue-700' : 'bg-gray-100 text-gray-400 cursor-not-allowed'"
           >
             Next

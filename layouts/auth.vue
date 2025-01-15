@@ -1,7 +1,9 @@
 <template>
-  <div>
+  <div class="min-h-screen flex flex-col bg-gradient-to-br from-green-100 via-blue-50 to-purple-100">
     <SharedNavbar />
-    <slot />
+    <main class="flex-grow">
+      <slot />
+    </main>
   </div>
 </template>
 

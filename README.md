@@ -1,75 +1,46 @@
-# Nuxt Minimal Starter
+# MK-Shop - Modern E-commerce Frontend
 
-Look at the [Nuxt documentation](https://nuxt.com/docs/getting-started/introduction) to learn more.
+A modern e-commerce frontend application built with Nuxt 3, featuring authentication, product filtering, and sorting capabilities.
 
-## Setup
+## 🌟 Key Features
 
-Make sure to install dependencies:
+- JWT Authentication with secure route protection
+- Product listing with category filtering
+- Advanced sorting and filtering
+- Responsive design with glass morphism effects
+- Loading states with shimmer effects
+- Mobile-first approach
 
+## 🚀 Tech Stack
+
+- **Framework:** Nuxt 3
+- **Styling:** Tailwind CSS
+- **Icons:** Material Icons
+- **API:** [Fake Store API](https://dummyjson.com/)
+
+## 📦 Quick Start
+
+1. Clone and install:
 ```bash
-# npm
+git clone https://github.com/mkunboxing/iodparts-Assignment
 npm install
-
-# pnpm
-pnpm install
-
-# yarn
-yarn install
-
-# bun
-bun install
 ```
-
-## Development Server
-
-Start the development server on `http://localhost:3000`:
-
+2. Run development server:
 ```bash
-# npm
 npm run dev
-
-# pnpm
-pnpm dev
-
-# yarn
-yarn dev
-
-# bun
-bun run dev
 ```
 
-## Production
+Visit `http://localhost:3000`
 
-Build the application for production:
+## 🔑 Test Credentials
 
-```bash
-# npm
-npm run build
-
-# pnpm
-pnpm build
-
-# yarn
-yarn build
-
-# bun
-bun run build
+```
+Email: john@mail.com
+Password: changeme
 ```
 
-Locally preview production build:
+## 👤 Author
 
-```bash
-# npm
-npm run preview
-
-# pnpm
-pnpm preview
-
-# yarn
-yarn preview
-
-# bun
-bun run preview
-```
-
-Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
+Your Name
+- GitHub: [@Mukul Kumar](https://github.com/mkunboxing)
+- LinkedIn: [Mukul kumar](https://www.linkedin.com/in/mkunboxing)

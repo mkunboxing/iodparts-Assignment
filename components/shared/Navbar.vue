@@ -1,5 +1,5 @@
 <template>
-  <nav class="bg-green-100 shadow">
+  <nav class="sticky top-0 z-50 backdrop-blur-md bg-gradient-to-br from-green-100/80 via-blue-50/80 to-purple-100/80 border-b border-white/20 shadow-sm">
     <div class="container mx-auto px-4">
       <div class="flex justify-between items-center h-16">
         <!-- Left side -->
@@ -21,7 +21,7 @@
 
           <!-- Resume Link -->
           <a 
-            href="/mukul-resume.pdf"
+            href="/your-resume.pdf"
             target="_blank"
             rel="noopener noreferrer"
             class="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors duration-200"
@@ -51,7 +51,7 @@
         <div v-else class="flex items-center gap-4">
           <div class="flex items-center gap-2">
             <div 
-              class="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white font-medium text-sm"
+              class="w-8 h-8 rounded-full bg-blue-600/90 backdrop-blur-sm flex items-center justify-center text-white font-medium text-sm shadow-sm"
             >
               {{ getInitial(user?.name) }}
             </div>
@@ -62,7 +62,7 @@
           </div>
           <button 
             @click="handleLogout"
-            class="px-4 py-2 text-sm text-red-600 hover:bg-red-50 rounded-lg transition-colors duration-200"
+            class="px-4 py-2 text-sm text-red-600 hover:bg-red-50 rounded-lg transition-colors duration-200 backdrop-blur-sm hover:bg-red-50/80"
           >
             Logout
           </button>
@@ -87,4 +87,16 @@ const handleLogout = async () => {
   logout()
   await router.push('/login')
 }
-</script> 
+</script>
+
+<style scoped>
+.backdrop-blur-md {
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+}
+
+.backdrop-blur-sm {
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
+}
+</style> 
