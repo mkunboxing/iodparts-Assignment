@@ -21,7 +21,7 @@
 
           <!-- Resume Link -->
           <a 
-            href="/your-resume.pdf"
+            href="/mukul-resume.pdf"
             target="_blank"
             rel="noopener noreferrer"
             class="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors duration-200"
