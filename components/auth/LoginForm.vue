@@ -6,11 +6,16 @@
         v-model="form.email"
         type="email"
         id="email"
-        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
-        :class="{ 'border-red-500': errors.email }"
+        :class="[
+          'mt-1 block w-full rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500',
+          errors.email ? 'border-red-300' : 'border-gray-300'
+        ]"
+        @blur="validateField('email')"
         required
       />
-      <p v-if="errors.email" class="mt-1 text-sm text-red-600">{{ errors.email }}</p>
+      <p v-if="errors.email" class="mt-1 text-sm text-red-600">
+        {{ errors.email }}
+      </p>
     </div>
 
     <div>
@@ -19,67 +24,118 @@
         v-model="form.password"
         type="password"
         id="password"
-        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
-        :class="{ 'border-red-500': errors.password }"
+        :class="[
+          'mt-1 block w-full rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500',
+          errors.password ? 'border-red-300' : 'border-gray-300'
+        ]"
+        @blur="validateField('password')"
         required
       />
-      <p v-if="errors.password" class="mt-1 text-sm text-red-600">{{ errors.password }}</p>
+      <p v-if="errors.password" class="mt-1 text-sm text-red-600">
+        {{ errors.password }}
+      </p>
     </div>
 
-    <button
-      type="submit"
-      :disabled="isLoading"
-      class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-    >
-      {{ isLoading ? 'Loading...' : 'Sign in' }}
-    </button>
+    <div v-if="error" class="text-red-600 text-sm">
+      {{ error }}
+    </div>
+
+    <div class="space-y-4">
+      <button
+        type="submit"
+        :disabled="loading || hasErrors"
+        class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white transition-colors duration-200"
+        :class="[
+          loading || hasErrors 
+            ? 'bg-blue-300 cursor-not-allowed' 
+            : 'bg-blue-600 hover:bg-blue-700'
+        ]"
+      >
+        {{ loading ? 'Signing in...' : 'Sign in' }}
+      </button>
+
+      <!-- Fill Test Credentials Button -->
+      <button
+        type="button"
+        @click="fillTestCredentials"
+        class="w-full flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors duration-200"
+      >
+        Fill Test Credentials
+      </button>
+    </div>
+
+    <!-- Test credentials info -->
+    <div class="text-sm text-gray-500 text-center border-t pt-4 mt-4">
+      <p class="font-medium">Test Credentials</p>
+      <p>Email: john@mail.com</p>
+      <p>Password: changeme</p>
+    </div>
   </form>
 </template>
 
 <script setup>
-import { ref, reactive } from 'vue'
-import { useValidators } from '~/utils/validators'
+import { ref, reactive, computed } from 'vue'
 import { useAuth } from '~/composables/useAuth'
+import { useValidators } from '~/utils/validators'
 
-const { validateEmail, validatePassword } = useValidators()
 const { login } = useAuth()
+const { validateEmail, validatePassword } = useValidators()
+
+const loading = ref(false)
+const error = ref('')
+const errors = reactive({
+  email: '',
+  password: ''
+})
 
 const form = reactive({
   email: '',
   password: ''
 })
 
-const errors = reactive({
-  email: '',
-  password: ''
+const hasErrors = computed(() => {
+  return Object.values(errors).some(error => error !== '') || 
+         !form.email || 
+         !form.password
 })
 
-const isLoading = ref(false)
+const validateField = (field) => {
+  if (field === 'email') {
+    errors.email = validateEmail(form.email)
+  }
+  if (field === 'password') {
+    errors.password = validatePassword(form.password)
+  }
+}
 
 const validateForm = () => {
-  let isValid = true
   errors.email = validateEmail(form.email)
   errors.password = validatePassword(form.password)
+  return !errors.email && !errors.password
+}
 
-  if (errors.email || errors.password) {
-    isValid = false
-  }
-
-  return isValid
+const fillTestCredentials = () => {
+  form.email = 'john@mail.com'
+  form.password = 'changeme'
+  // Clear any existing errors
+  errors.email = ''
+  errors.password = ''
+  error.value = ''
 }
 
 const handleSubmit = async () => {
-  if (!validateForm()) return
-
   try {
-    isLoading.value = true
+    if (!validateForm()) return
+
+    loading.value = true
+    error.value = ''
     await login(form)
-    // Redirect to dashboard or home page after successful login
-    await navigateTo('/dashboard')
-  } catch (error) {
-    console.error('Login error:', error)
+    await navigateTo('/')
+  } catch (e) {
+    error.value = 'Invalid email or password'
+    console.error('Login error:', e)
   } finally {
-    isLoading.value = false
+    loading.value = false
   }
 }
 </script>

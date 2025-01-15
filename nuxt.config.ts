@@ -7,9 +7,9 @@ export default defineNuxtConfig({
     head: {
       charset: 'utf-8',
       viewport: 'width=device-width, initial-scale=1',
-      title: 'Your App Name',
+      title: 'MK-Shop',
       meta: [
-        { name: 'description', content: 'Your default app description' },
+        { name: 'description', content: 'MK-Shop is a platform for buying various products' },
         { name: 'format-detection', content: 'telephone=no' },
         { name: 'theme-color', content: '#000000' }
       ],

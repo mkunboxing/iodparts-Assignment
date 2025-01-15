@@ -1,181 +1,189 @@
 <template>
-  <div class="container mx-auto px-4 py-8">
+  <div class="container mx-auto px-4 py-8 bg-yellow-50">
     <h1 class="text-3xl font-bold mb-8 text-gray-800">Our Products</h1>
     
-    <!-- Filters and Sort Controls -->
-    <div class="mb-8 space-y-4">
-      <!-- Category Filter -->
-      <div class="flex flex-wrap gap-3">
-        <button
-          class="px-4 py-2 rounded-lg transition-all duration-200"
-          :class="selectedCategory === '' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'"
-          @click="fetchProducts()"
-        >
-          All Products
-        </button>
-        <button
-          v-for="category in categories"
-          :key="category"
-          class="px-4 py-2 rounded-lg transition-all duration-200"
-          :class="selectedCategory === category ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'"
-          @click="fetchProducts(category)"
-        >
-          {{ formatCategory(category) }}
-        </button>
-      </div>
+    <!-- Loading State with Shimmer -->    
+    <ShimmerEffect v-if="loading" />
 
-      <!-- Sort Controls -->
-      <div class="flex items-center gap-4">
-        <label class="text-gray-700 font-medium">Sort by Price:</label>
-        <div class="flex gap-2">
-          <button
-            class="px-4 py-2 rounded-lg transition-all duration-200"
-            :class="sortOrder === 'asc' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'"
-            @click="setSortOrder('asc')"
-          >
-            <span class="flex items-center gap-1">
-              Low to High
-              <span class="material-icons text-sm">arrow_upward</span>
-            </span>
-          </button>
-          <button
-            class="px-4 py-2 rounded-lg transition-all duration-200"
-            :class="sortOrder === 'desc' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'"
-            @click="setSortOrder('desc')"
-          >
-            <span class="flex items-center gap-1">
-              High to Low
-              <span class="material-icons text-sm">arrow_downward</span>
-            </span>
-          </button>
-          <button
-            v-if="sortOrder"
-            class="px-4 py-2 rounded-lg transition-all duration-200 bg-gray-100 text-gray-700 hover:bg-gray-200"
-            @click="setSortOrder('')"
-          >
-            <span class="flex items-center gap-1">
-              Clear Sort
-              <span class="material-icons text-sm">clear</span>
-            </span>
-          </button>
-        </div>
-      </div>
-    </div>
-    
-    <div v-if="loading" class="text-center py-8">
-      <p class="text-gray-600">Loading products...</p>
-    </div>
-
+    <!-- Error State -->
     <div v-else-if="error" class="text-center py-8">
       <p class="text-red-600">{{ error }}</p>
     </div>
 
-    <div v-else>
-      <!-- Grid Layout -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
-        <div 
-          v-for="product in paginatedProducts" 
-          :key="product.id"
-          class="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-all duration-300 border border-gray-100"
-        >
-          <!-- Image Container -->
-          <div class="aspect-square relative overflow-hidden bg-gray-100">
-            <img 
-              :src="product.image" 
-              :alt="product.title"
-              class="w-full h-full object-cover transform hover:scale-105 transition-transform duration-300"
-              @error="handleImageError"
-            />
+    <!-- Products Grid -->
+    <div v-else-if="!loading && products">
+      <!-- Filters Row -->
+      <div class="flex flex-col md:flex-row gap-4 mb-8">
+        <!-- Category Selector -->
+        <div class="relative flex-1 md:max-w-xs">
+          <select
+            v-model="selectedCategory"
+            @change="handleCategoryChange"
+            class="w-full px-4 py-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 appearance-none cursor-pointer"
+          >
+            <option value="">All Categories</option>
+            <option 
+              v-for="category in categories" 
+              :key="category" 
+              :value="category"
+            >
+              {{ formatCategory(category) }}
+            </option>
+          </select>
+          <div class="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
+            <span class="material-icons text-gray-400">expand_more</span>
           </div>
+        </div>
 
-          <!-- Content Container -->
-          <div class="p-5">
-            <!-- Category Badge -->
-            <div class="mb-2">
-              <span class="px-3 py-1 text-xs font-medium rounded-full bg-blue-50 text-blue-600">
-                {{ formatCategory(product.category) }}
-              </span>
-            </div>
+        <!-- Sort Buttons -->
+        <div class="flex gap-2">
+          <button
+            @click="setSorting('title')"
+            class="px-4 py-2 rounded-lg border transition-all duration-200 flex items-center gap-2"
+            :class="sortField === 'title' ? 'bg-blue-50 border-blue-500 text-blue-700' : 'border-gray-300 hover:bg-gray-50'"
+          >
+            Title
+            <span v-if="sortField === 'title'" class="material-icons text-sm">
+              {{ sortOrder === 'asc' ? 'arrow_upward' : 'arrow_downward' }}
+            </span>
+          </button>
+          
+          <button
+            @click="setSorting('price')"
+            class="px-4 py-2 rounded-lg border transition-all duration-200 flex items-center gap-2"
+            :class="sortField === 'price' ? 'bg-blue-50 border-blue-500 text-blue-700' : 'border-gray-300 hover:bg-gray-50'"
+          >
+            Price
+            <span v-if="sortField === 'price'" class="material-icons text-sm">
+              {{ sortOrder === 'asc' ? 'arrow_upward' : 'arrow_downward' }}
+            </span>
+          </button>
 
-            <!-- Product Name -->
-            <h2 class="text-lg font-semibold text-gray-800 mb-2 line-clamp-2 min-h-[3.5rem]">
-              {{ product.title }}
-            </h2>
-
-            <!-- Price -->
-            <div class="mt-4 flex items-center justify-between">
-              <p class="text-xl font-bold text-blue-600">
-                ${{ formatPrice(product.price) }}
-              </p>
-            </div>
-          </div>
+          <!-- Clear Sort Button - Only show when sort is active -->
+          <button
+            v-if="isSortActive"
+            @click="clearSort"
+            class="px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-50 transition-all duration-200 flex items-center gap-2 text-gray-700"
+          >
+            <span class="material-icons text-sm">clear</span>
+            Clear Sort
+          </button>
         </div>
       </div>
 
-      <!-- Empty state -->
-      <div v-if="paginatedProducts.length === 0" class="text-center py-8">
+      <!-- Products Display -->
+      <div v-if="products && products.length > 0" class="space-y-8">
+        <div class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          <div 
+            v-for="product in products" 
+            :key="product.id"
+            class="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-all duration-300 border border-gray-100"
+          >
+            <!-- Product Card Content -->
+            <div class="aspect-square relative overflow-hidden bg-gray-100">
+              <img 
+                :src="product.thumbnail" 
+                :alt="product.title"
+                class="w-full h-full object-cover transform hover:scale-105 transition-transform duration-300"
+                @error="handleImageError"
+              />
+            </div>
+
+            <div class="p-5">
+              <div class="mb-2">
+                <span class="px-3 py-1 text-xs font-medium rounded-full bg-blue-50 text-blue-600">
+                  {{ formatCategory(product.category) }}
+                </span>
+              </div>
+
+              <h2 class="text-lg font-semibold text-gray-800 mb-2 min-h-[1.5rem]">
+                {{ product.title }}
+              </h2>
+
+              <div class="flex items-center justify-between mb-3">
+                <div class="flex items-center">
+                  <span class="material-icons text-yellow-400 text-sm">star</span>
+                  <span class="text-sm text-gray-600 ml-1">{{ product.rating.toFixed(1) }}</span>
+                </div>
+                <span class="text-sm" :class="product.stock > 10 ? 'text-green-600' : 'text-red-600'">
+                  Stock: {{ product.stock }}
+                </span>
+              </div>
+
+              <div class="mt-4">
+                <p class="text-xl font-bold text-blue-600">
+                  ${{ formatPrice(product.price) }}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pagination -->
+        <div class="flex items-center justify-center gap-4">
+          <button 
+            @click="prevPage" 
+            :disabled="!canGoPrev"
+            class="px-6 py-2.5 rounded-lg transition-all duration-200 flex items-center gap-2"
+            :class="canGoPrev ? 'bg-blue-600 text-white hover:bg-blue-700' : 'bg-gray-100 text-gray-400 cursor-not-allowed'"
+          >
+            <span class="material-icons text-sm">arrow_back</span>
+            Previous
+          </button>
+          
+          <div class="px-4 py-2 bg-gray-50 rounded-lg">
+            <span class="text-sm font-medium text-gray-700">
+              Page {{ currentPage }} of {{ totalPages }}
+            </span>
+          </div>
+
+          <button 
+            @click="nextPage" 
+            :disabled="!canGoNext"
+            class="px-6 py-2.5 rounded-lg transition-all duration-200 flex items-center gap-2"
+            :class="canGoNext ? 'bg-blue-600 text-white hover:bg-blue-700' : 'bg-gray-100 text-gray-400 cursor-not-allowed'"
+          >
+            Next
+            <span class="material-icons text-sm">arrow_forward</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Empty State -->
+      <div v-else class="text-center py-8">
         <p class="text-gray-600">No products found</p>
-      </div>
-
-      <!-- Pagination Controls -->
-      <div v-if="paginatedProducts.length > 0" class="mt-12 flex items-center justify-center gap-4">
-        <button 
-          @click="prevPage" 
-          :disabled="!canGoPrev"
-          class="px-6 py-2.5 rounded-lg transition-all duration-200 flex items-center gap-2"
-          :class="canGoPrev ? 'bg-blue-600 text-white hover:bg-blue-700' : 'bg-gray-100 text-gray-400 cursor-not-allowed'"
-        >
-          <span class="material-icons text-sm">arrow_back</span>
-          Previous
-        </button>
-        <div class="px-4 py-2 bg-gray-50 rounded-lg">
-          <span class="text-sm font-medium text-gray-700">
-            Page {{ currentPage }} of {{ totalPages }}
-          </span>
-        </div>
-        <button 
-          @click="nextPage" 
-          :disabled="!canGoNext"
-          class="px-6 py-2.5 rounded-lg transition-all duration-200 flex items-center gap-2"
-          :class="canGoNext ? 'bg-blue-600 text-white hover:bg-blue-700' : 'bg-gray-100 text-gray-400 cursor-not-allowed'"
-        >
-          Next
-          <span class="material-icons text-sm">arrow_forward</span>
-        </button>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { onMounted } from 'vue'
+import { onMounted, watch, computed } from 'vue'
+import { useAuth } from '~/composables/useAuth'
 import { useProducts } from '~/composables/useProducts'
-import { useSeo } from '~/composables/useSeo'
+import { useRouter } from 'vue-router'
+import ShimmerEffect from '~/components/ui/ShimmerEffect.vue'
 
+const router = useRouter()
+const { checkAuth } = useAuth()
 const { 
-  paginatedProducts, 
+  products, 
   loading, 
   error, 
-  currentPage,
-  totalPages,
-  nextPage,
-  prevPage,
-  canGoPrev,
-  canGoNext,
   categories,
   selectedCategory,
+  currentPage,
+  totalPages,
+  canGoPrev,
+  canGoNext,
+  sortField,
   sortOrder,
   fetchProducts,
   fetchCategories,
-  setSortOrder
+  nextPage,
+  prevPage,
+  setSorting
 } = useProducts()
-
-const { setSeoMeta } = useSeo()
-
-setSeoMeta({
-  title: 'Products Listing - Your App Name',
-  description: 'Browse our collection of products with detailed information and pricing.',
-})
 
 const handleImageError = (e) => {
   e.target.src = '/placeholder-image.png'
@@ -192,9 +200,58 @@ const formatCategory = (category) => {
     .join(' ')
 }
 
-onMounted(async () => {
-  await fetchCategories()
-  await fetchProducts()
+const handleCategoryChange = () => {
+  currentPage.value = 1
+  fetchProducts(selectedCategory.value)
+}
+
+// Initialize data after authentication check
+const initializeData = async () => {
+  if (import.meta.client) {
+    const token = localStorage.getItem('token')
+    if (!token) {
+      router.push('/login')
+      return
+    }
+
+    const isAuthenticated = await checkAuth()
+    if (!isAuthenticated) {
+      router.push('/login')
+      return
+    }
+
+    // Fetch categories and products only after authentication is confirmed
+    await fetchCategories()
+    await fetchProducts()
+  }
+}
+
+onMounted(() => {
+  initializeData()
+})
+
+// Watch for authentication changes
+watch(() => localStorage.getItem('token'), (newToken) => {
+  if (!newToken) {
+    router.push('/login')
+  }
+})
+
+const isSortActive = computed(() => {
+  return sortField.value !== ''
+})
+
+const clearSort = async () => {
+  // Only reset sort-related filters
+  sortField.value = ''
+  sortOrder.value = 'asc'
+  
+  // Fetch products with current category but cleared sort
+  await fetchProducts(selectedCategory.value)
+}
+
+definePageMeta({
+  middleware: ['auth']
 })
 </script>
 

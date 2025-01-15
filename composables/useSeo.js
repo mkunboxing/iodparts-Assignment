@@ -4,7 +4,7 @@ export const useSeo = () => {
       title: 'Your App Name',
       description: 'Default description of your application',
       image: '/default-og-image.jpg', // Add your default OG image
-      url: process.client ? window.location.href : undefined
+      url: import.meta.client ? window.location.href : undefined
     }
 
     const finalConfig = { ...defaultConfig, ...config }
